@@ -1,0 +1,64 @@
+from datetime import date
+
+from rest_framework.exceptions import APIException
+from rest_framework.exceptions import ValidationError
+
+from src.employees.models.ClockRecord import ClockRecord
+from src.employees.models.Employee import Employee
+
+
+class ClockService:
+    @staticmethod
+    def create_clock_record(request):
+        try:
+            data = request.data
+            files = request.FILES
+            pin_code = data.get("pin_code")
+            clock_type = data.get("clock_type")
+            lat = data.get("location_lat")
+            lng = data.get("location_lng")
+            photo = files.get("photo")
+
+            # Validate employee
+            try:
+                employee = Employee.objects.get(pin_code=pin_code)
+            except Employee.DoesNotExist:
+                raise ValidationError("Invalid PIN code.")
+
+            # Enforce 1 clock-in and 1 clock-out per day
+            if ClockRecord.objects.filter(
+                employee=employee,
+                clock_type=clock_type,
+                timestamp__date=date.today(),
+            ).exists():
+                raise ValidationError(f"Employee already clocked {clock_type} today.")
+
+            # Create record
+            return ClockRecord.objects.create(
+                employee=employee,
+                clock_type=clock_type,
+                location_lat=lat,
+                location_lng=lng,
+                photo=photo,
+            )
+
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise APIException(str(e))
+
+    @staticmethod
+    def get_employee_by_pin(pin_code):
+        try:
+            if not pin_code or len(pin_code) != 4:
+                raise ValidationError("PIN code must be 4 digits.")
+
+            try:
+                return Employee.objects.get(pin_code=pin_code)
+            except Employee.DoesNotExist:
+                raise ValidationError("Invalid PIN code. Employee not found.")
+
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise APIException(str(e))
