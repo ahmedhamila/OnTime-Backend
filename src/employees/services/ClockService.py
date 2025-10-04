@@ -32,7 +32,16 @@ class ClockService:
                 timestamp__date=date.today(),
             ).exists():
                 raise ValidationError(f"L'employé a déjà pointé {clock_type} aujourd'hui.")
-
+            # Prevent clock-out if no clock-in today
+            if clock_type == "out":
+                if not ClockRecord.objects.filter(
+                    employee=employee,
+                    clock_type="in",
+                    timestamp__date=date.today(),
+                ).exists():
+                    raise ValidationError(
+                        "Impossible de pointer la sortie sans avoir pointé l'entrée aujourd'hui."
+                    )
             # Create record
             return ClockRecord.objects.create(
                 employee=employee,

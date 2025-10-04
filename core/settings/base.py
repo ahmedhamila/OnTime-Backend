@@ -166,8 +166,8 @@ AUTH_USER_MODEL = "users.User"
 """
 Internationalization and localization settings.
 """
-LANGUAGE_CODE = "fr"
-TIME_ZONE = "Africa/Tunis"
+LANGUAGE_CODE = "fr-fr"
+TIME_ZONE = "Europe/Paris"
 USE_TZ = True
 USE_I18N = True
 
