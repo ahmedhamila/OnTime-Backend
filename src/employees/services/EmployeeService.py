@@ -9,12 +9,12 @@ class EmployeeService:
     def get_employee_by_pin(pin_code: str):
         try:
             if not pin_code or len(pin_code) != 4:
-                raise ValidationError("PIN code must be 4 digits.")
+                raise ValidationError("Le code PIN doit contenir 4 chiffres.")
 
             try:
                 return Employee.objects.get(pin_code=pin_code)
             except Employee.DoesNotExist:
-                raise ValidationError("Invalid PIN code. Employee not found.")
+                raise ValidationError("Code PIN invalide. Employé introuvable.")
 
         except ValidationError:
             raise

@@ -11,7 +11,7 @@ class UserService:
     @classmethod
     def get_user_identity(cls, user, request):
         if not user or not user.is_authenticated:
-            raise APIException(detail="Invalid user")
+            raise APIException(detail="Utilisateur invalide")
 
         return Response(UserSerializer(user, context={"request": request}).data)
 
@@ -22,21 +22,21 @@ class UserService:
         new_password = data.get("new_password")
 
         if not user.check_password(current_password):
-            raise ValidationError(detail="Current password is incorrect")
+            raise ValidationError(detail="Le mot de passe actuel est incorrect")
 
         if not new_password:
-            raise ValidationError(detail="New password cannot be empty")
+            raise ValidationError(detail="Le nouveau mot de passe ne peut pas être vide")
 
         user.set_password(new_password)
         user.save()
 
-        return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Mot de passe mis à jour avec succès"}, status=status.HTTP_200_OK
+        )
 
     @classmethod
     def update_user_info(cls, user, data, files):
-        """
-        Update basic user info (first name, last name, email, phone, image).
-        """
+
         first_name = data.get("firstName")
         last_name = data.get("lastName")
         email = data.get("email")
@@ -51,7 +51,7 @@ class UserService:
         if email:
             existing_user = User.objects.filter(email=email).exclude(pk=user.pk).first()
             if existing_user:
-                raise ValidationError(detail="This email is already in use")
+                raise ValidationError(detail="Cet e-mail est déjà utilisé")
             user.email = email
 
         if phone_number:
@@ -59,7 +59,7 @@ class UserService:
                 User.objects.filter(phone_number=phone_number).exclude(pk=user.pk).first()
             )
             if existing_user:
-                raise ValidationError(detail="This phone number is already in use")
+                raise ValidationError(detail="Ce numéro de téléphone est déjà utilisé")
             user.phone_number = phone_number
 
         if image:

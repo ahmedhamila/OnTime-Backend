@@ -23,7 +23,7 @@ class ClockService:
             try:
                 employee = Employee.objects.get(pin_code=pin_code)
             except Employee.DoesNotExist:
-                raise ValidationError("Invalid PIN code.")
+                raise ValidationError("Code PIN invalide.")
 
             # Enforce 1 clock-in and 1 clock-out per day
             if ClockRecord.objects.filter(
@@ -31,7 +31,7 @@ class ClockService:
                 clock_type=clock_type,
                 timestamp__date=date.today(),
             ).exists():
-                raise ValidationError(f"Employee already clocked {clock_type} today.")
+                raise ValidationError(f"L'employé a déjà pointé {clock_type} aujourd'hui.")
 
             # Create record
             return ClockRecord.objects.create(
@@ -51,12 +51,12 @@ class ClockService:
     def get_employee_by_pin(pin_code):
         try:
             if not pin_code or len(pin_code) != 4:
-                raise ValidationError("PIN code must be 4 digits.")
+                raise ValidationError("Le code PIN doit contenir 4 chiffres.")
 
             try:
                 return Employee.objects.get(pin_code=pin_code)
             except Employee.DoesNotExist:
-                raise ValidationError("Invalid PIN code. Employee not found.")
+                raise ValidationError("Code PIN invalide. Employé introuvable.")
 
         except ValidationError:
             raise
