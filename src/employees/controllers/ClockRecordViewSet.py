@@ -12,7 +12,7 @@ from src.employees.services.ClockService import ClockService
 
 
 class ClockRecordViewSet(viewsets.ModelViewSet):
-    queryset = ClockRecord.objects.all()
+    queryset = ClockRecord.objects.all().order_by("-timestamp")
     serializer_class = ClockRecordSerializer
     parser_classes = [MultiPartParser, FormParser]
 

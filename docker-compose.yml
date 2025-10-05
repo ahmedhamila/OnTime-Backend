@@ -15,7 +15,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: docker/webapp/Dockerfile
+      dockerfile: Dockerfile
     volumes:
       - .:/code
     ports:
@@ -24,7 +24,6 @@ services:
       - .env
     depends_on:
       - db
-      - redis
 
 volumes:
   postgres_data:
