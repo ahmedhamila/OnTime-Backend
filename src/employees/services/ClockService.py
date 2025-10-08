@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 
 from src.employees.models.ClockRecord import ClockRecord
 from src.employees.models.Employee import Employee
+from src.employees.models.EmployeeScore import EmployeeScore
 
 
 class ClockService:
@@ -43,13 +44,18 @@ class ClockService:
                         "Impossible de pointer la sortie sans avoir pointé l'entrée aujourd'hui."
                     )
             # Create record
-            return ClockRecord.objects.create(
+            clock = ClockRecord.objects.create(
                 employee=employee,
                 clock_type=clock_type,
                 location_lat=lat,
                 location_lng=lng,
                 photo=photo,
             )
+
+            if clock_type == "out":
+                EmployeeScore.objects.get_or_create(employee=employee, date=date.today())
+
+            return clock
 
         except ValidationError:
             raise
