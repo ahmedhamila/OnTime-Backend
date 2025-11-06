@@ -1,12 +1,11 @@
 from core.env import config
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     config("FRONTEND_URL"),
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-# ]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    config("FRONTEND_URL"),
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 ALLOWED_HOSTS = [
     config("BACKEND_HOST"),
     "127.0.0.1",
