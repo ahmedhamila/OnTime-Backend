@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import timedelta
 
 from rest_framework.exceptions import APIException
 from rest_framework.exceptions import ValidationError
@@ -14,6 +15,7 @@ class ClockService:
         try:
             data = request.data
             files = request.FILES
+
             pin_code = data.get("pin_code")
             clock_type = data.get("clock_type")
             lat = data.get("location_lat")
@@ -33,17 +35,22 @@ class ClockService:
                 timestamp__date=date.today(),
             ).exists():
                 raise ValidationError(f"L'employé a déjà pointé {clock_type} aujourd'hui.")
+
             # Prevent clock-out if no clock-in today
+            clock_in = None
             if clock_type == "out":
-                if not ClockRecord.objects.filter(
-                    employee=employee,
-                    clock_type="in",
-                    timestamp__date=date.today(),
-                ).exists():
+                try:
+                    clock_in = ClockRecord.objects.get(
+                        employee=employee,
+                        clock_type="in",
+                        timestamp__date=date.today(),
+                    )
+                except ClockRecord.DoesNotExist:
                     raise ValidationError(
                         "Impossible de pointer la sortie sans avoir pointé l'entrée aujourd'hui."
                     )
-            # Create record
+
+            # Create clock record
             clock = ClockRecord.objects.create(
                 employee=employee,
                 clock_type=clock_type,
@@ -52,8 +59,15 @@ class ClockService:
                 photo=photo,
             )
 
+            # ✅ Add score ONLY if worked ≥ 8 hours
             if clock_type == "out":
-                EmployeeScore.objects.get_or_create(employee=employee, date=date.today())
+                worked_duration = clock.timestamp - clock_in.timestamp
+
+                if worked_duration >= timedelta(hours=8):
+                    EmployeeScore.objects.get_or_create(
+                        employee=employee,
+                        date=date.today(),
+                    )
 
             return clock
 

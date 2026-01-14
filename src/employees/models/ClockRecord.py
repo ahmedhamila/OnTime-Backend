@@ -17,8 +17,5 @@ class ClockRecord(BaseModel):
     photo = models.ImageField(upload_to="clock_photos/")
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ("employee", "clock_type", "timestamp")
-
     def __str__(self):
         return f"{self.employee} - {self.clock_type} @ {self.timestamp}"
